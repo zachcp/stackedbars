@@ -1,0 +1,28 @@
+Package: stackedbar
+Type: Package
+Title: stackedbar is an htmlwidget for making stacked barcharts
+Version: 0.8.1
+Date: 2016-02-01
+Author: Zach Charlop-Powers (@zach_cp)
+Maintainer: Zach Charlop-Powers <zcharlop@rockefeller.edu>
+Description: Create stacked barcahrts from R usign d3.js
+URL: http://github.com/zachcp/stackedbar
+BugReports: http://github.com/zachcp/stackedbar/issues
+License: MIT
+Suggests:
+    testthat,
+    knitr,
+    babynames,
+    ggplot2movies
+Encoding: UTF-8
+Depends:
+    R (>= 3.0.0),
+Imports:
+    htmlwidgets,
+    htmltools,
+    magrittr,
+    xts,
+    tidyr,
+    dplyr
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
