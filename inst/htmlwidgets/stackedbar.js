@@ -89,19 +89,6 @@ HTMLWidgets.widget({
     var color =  d3.scale.ordinal()
                     .range(colorrange)
                     .domain(colorkeys);
-            //d3.keys(data[0]).filter(function(key) { return key !== "State"; })
-    var z = color
-            .domain(d3.set(data.map(function(d) { return(d.key) }))
-            .values()
-            .sort());
-    
-    console.log("color:z");
-    console.log(z);
-    console.log(z.domain)
-    
-    console.log("colorrange:");
-    console.log(colorrange);
-    console.log("colorrange done");
     
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -120,12 +107,9 @@ HTMLWidgets.widget({
 
     dbgs = svg;
 
-    console.log(widedata);
     // Sum and Sort the Data
-    
     widedata.forEach(function(d) {
       var y0 = 0;
-      
       d.ages = colorkeys.map(function(name) { 
         return {name: name, y0: y0, y1: y0 += +d[name]}; });
       console.log(d.ages);
@@ -159,7 +143,7 @@ HTMLWidgets.widget({
         .data(widedata)
       .enter().append("g")
         .attr("class", "g")
-        .attr("transform", function(d) { return "translate(" + x(d['key']) + ",0)"; });
+        .attr("transform", function(d) { return "translate(" + x(d.rowname) + ",0)"; });
   
     state.selectAll("rect")
         .data(function(d) { return d.ages; })
@@ -170,7 +154,7 @@ HTMLWidgets.widget({
         .style("fill", function(d) { return z(d.name); });
   
     var legend = svg.selectAll(".legend")
-        .data(z.domain().slice().reverse())
+        .data(colorkeys.domain().slice().reverse())
       .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
