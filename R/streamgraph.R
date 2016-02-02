@@ -94,50 +94,19 @@ stackedbar <- function(data,
 
   data <- data.frame(data)
   data <- data[,c(key, value, date)]
-  colnames(data) <- c("key", "value", "date")
-
-  xtu <- "month"
-  xtf <- "%b"
-  xti <- 1
-
-  if (scale=="date") {
-
-    # date format
-
-    if (all(class(data$date) %in% c("numeric", "character", "integer"))) {
-      if (all(nchar(as.character(data$date)) == 4)) {
-        data %>%
-          mutate(date=sprintf("%04d-01-01", as.numeric(date))) -> data
-        xtu <- "year"
-        xtf <- "%Y"
-        xti <- 10
-      }
-    }
-
-  } else {
-
-    xtu <- NULL
-    xtf <- ",.0f"
-    xti <- 10
-
-  }
-
-  # needs all combos, so we do the equiv of expand.grid, but w/dplyr & tidyr
+  colnames(data) <- c("colname","value", "rowname")
+  
+  # xtu <- "month"
+  # xtf <- "%b"
+  # xti <- 1
+  xtu <- NULL
+  xtf <- ",.0f"
+  xti <- 10
 
   data %>%
-    left_join(tidyr::expand(., key, date), ., by=c("key", "date")) %>%
+    left_join(tidyr::expand(., colname, rowname), ., by=c("colname", "rowname")) %>%
     mutate(value=ifelse(is.na(value), 0, value)) %>%
-    select(key, value, date) -> data
-
-  if (scale=="date") {
-
-    # date format
-
-    data %>%
-      mutate(date=format(as.Date(date), "%Y-%m-%d")) %>%
-      arrange(date) -> data
-
-  }
+    select(colname, value, rowname) -> data
 
   params = list(
     data=data,
@@ -195,8 +164,6 @@ stackedbar_html <- function(id, style, class, width, height, ...) {
        tags$div(id = sprintf("%s-legend", id), style=sprintf("width:%s", width), class = sprintf("%s-legend", class),
                 HTML(sprintf("<center><label style='padding-right:5px' for='%s-select'></label><select id='%s-select' style='visibility:hidden;'></select></center>", id, id))))
 }
-
-
 
 
 

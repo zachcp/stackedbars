@@ -1,4 +1,4 @@
-var dbg, dbg2, dbg3, dbgs, dbgy, dbgx;
+var dbg, dbg2, dbg3, dbgs, dbgy, dbgx, dbgwd, dbgwdprocesses, colrrng;
 
 HTMLWidgets.widget({
 
@@ -29,23 +29,41 @@ HTMLWidgets.widget({
     var data = HTMLWidgets.dataframeToD3(params.data) ;
 
     data.forEach(function(d) {
-      if (params.x_scale == "date") {
-        d.date = format.parse(d.date);
-      } else {
-        d.date = +d.date;
-      }
+      d.colname = d.colname;
       d.value = +d.value;
     });
 
     dbg2 = data;
+    
+    // convert to wide format
+    // HT http://jonathansoma.com/tutorials/d3/wide-vs-long-data/
+    var widedata = d3.nest()
+      .key(function(d) { return d["rowname"] }) // sort by key
+      .rollup(function(d) { // do this to each grouping
+      // reduce takes a list and returns one value
+      // in this case, the list is all the grouped elements
+      // and the final value is an object with keys
+      return d.reduce(function(prev, curr) {
+        prev["rowname"] = curr["rowname"];
+        prev[curr["colname"]] = curr["value"];
+        return prev;
+        }, {});
+      })
+      .entries(data) // tell it what data to process
+      .map(function(d) { // pull out only the values
+        return d.values;
+    });
 
+    dbgwd = widedata;
+    
     // assign colors
 
     var colorrange = [];
     var tooltip ;
     var opacity = 0.33 ;
 
-    var ncols = d3.map(data, function(d) { return(d.key) }).keys().length;
+    // var ncols = d3.map(data, function(d) { return(d.key) }).keys().length;
+    var ncols = d3.keys(dbgwd[0]).length;
     if (ncols <= 2) { ncols = 3 ; }
 
     if (params.fill == "brewer") {
@@ -58,91 +76,120 @@ HTMLWidgets.widget({
     strokecolor = colorrange[0];
 
     // setup size, scales and axes
-
     var margin = { top: params.top, right: params.right,
                    bottom: params.bottom, left: params.left };
     width = width - margin.left - margin.right;
     height = height - margin.top - margin.bottom;
 
-    var x ;
-    if (params.x_scale == "date") {
-      x = d3.time.scale().range([0, width]);
-    } else {
-      x = d3.scale.linear().range([0, width]) ;
-    }
-    var y = d3.scale.linear().range([height-10, 0]);
-    var z = d3.scale.ordinal().range(colorrange)
-              .domain(d3.set(data.map(function(d) { return(d.key) })).values().sort());
-    var bisectDate = d3.bisector(function(d) { return d.date; }).left;
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
+    var y = d3.scale.linear().rangeRound([height, 0]);
 
-    var xAxis = d3.svg.axis().scale(x)
-      .orient("bottom")
-      .tickPadding(8);
+    // color 
+    var color = d3.scale.ordinal()
+            .range(colorrange)
+            .domain(d3.set(data.map(function(d) { return(d.key) }));
+            //d3.keys(data[0]).filter(function(key) { return key !== "State"; })
+    var z = color
+            .domain(d3.set(data.map(function(d) { return(d.key) }))
+            .values()
+            .sort());
+    
+    console.log("color:z");
+    console.log(z);
+    console.log(z.domain)
+    
+    console.log("colorrange:");
+    console.log(colorrange);
+    console.log("colorrange done");
+    
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
 
-    if (params.x_scale == "continuous") {
-      xAxis = xAxis.ticks(params.x_tick_interval)
-                   .tickFormat(d3.format(params.x_tick_format));
-    } else {
-      xAxis = xAxis.ticks(d3.time[params.x_tick_units], params.x_tick_interval)
-                   .tickFormat(d3.time.format(params.x_tick_format));
-    }
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .tickFormat(d3.format(".2s"));
 
-    var yAxis = d3.svg.axis().scale(y)
-      .ticks(params.y_tick_count)
-      .tickFormat(d3.format(params.y_tick_format))
-      .orient("left");
+    var svg = d3.select("#" + el.id).append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // all the magic is here
+    dbgs = svg;
 
-    var stack = d3.layout.stack()
-      .offset(params.offset)
-      .values(function(d) { return d.values; })
-      .x(function(d) { return d.date; })
-      .y(function(d) { return d.value; });
+    console.log(widedata);
+    // Sum and Sort the Data
+    
+    widedata.forEach(function(d) {
+      var y0 = 0;
+      d.ages = z.domain().map(function(name) { 
+        return {name: name, y0: y0, y1: y0 += +d[name]}; });
+      console.log(d.ages);
+      d.total = d.ages[d.ages.length - 1].y1;
+    });
+    
+    widedata.sort(function(a, b) { return b.total - a.total; });
+    x.domain(widedata.map(function(d) { return d['key']; }));
+    y.domain([0, d3.max(widedata, function(d) { return d.total; })]);
+    
+    colrrng = z;
+    
+    // all the drawing is here
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+  
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Population");
 
-    dbg_stack = stack ;
-
-    var nest = d3.nest()
-                 .key(function(d) { return d.key; });
-
-    var area = d3.svg.area()
-                 .interpolate(params.interpolate)
-                 .x(function(d) { return x(d.date); })
-                 .y0(function(d) { return y(d.y0); })
-                 .y1(function(d) { return y(d.y0 + d.y); });
+    
+    var state = svg.selectAll(".state")
+        .data(widedata)
+      .enter().append("g")
+        .attr("class", "g")
+        .attr("transform", function(d) { return "translate(" + x(d['key']) + ",0)"; });
+  
+    state.selectAll("rect")
+        .data(function(d) { return d.ages; })
+      .enter().append("rect")
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.y1); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+        .style("fill", function(d) { return z(d.name); });
+  
+    var legend = svg.selectAll(".legend")
+        .data(z.domain().slice().reverse())
+      .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+  
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", z);
+  
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function(d) { return d; });
+  
 
     // build the final svg
 
-    var svg = d3.select("#" + el.id).append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    dbgs = svg ;
-
-    dbg_nest = nest.entries(data) ;
-
-    var layers = stack(nest.entries(data));
-
-    x.domain(d3.extent(data, function(d) { return d.date; }));
-
-    // experimental support for negative y axis
-
-    var y_min = d3.min(data, function(d) { return d.y0 + d.y; });
-    if (y_min > 0) { y_min = 0; }
-    y.domain([y_min, d3.max(data, function(d) { return d.y0 + d.y; })]);
-
-    dbgx = x ;
-    dbgy = y ;
-
-    svg.selectAll(".layer")
-       .data(layers)
-       .enter().append("path")
-       .attr("class", "layer")
-       .attr("d", function(d) { return area(d.values); })
-       .style("fill", function(d, i) { return z(d.key); });
-
+    
     // TODO legends for non-interactive
     // TODO add tracker vertical line
 
