@@ -85,9 +85,10 @@ HTMLWidgets.widget({
     var y = d3.scale.linear().rangeRound([height, 0]);
 
     // color 
-    var color = d3.scale.ordinal()
-            .range(colorrange)
-            .domain(d3.set(data.map(function(d) { return(d.key) }));
+    var colorkeys = d3.keys(dbgwd[0]).filter(function(key) { return key !== "rowname"; })
+    var color =  d3.scale.ordinal()
+                    .range(colorrange)
+                    .domain(colorkeys);
             //d3.keys(data[0]).filter(function(key) { return key !== "State"; })
     var z = color
             .domain(d3.set(data.map(function(d) { return(d.key) }))
@@ -124,14 +125,15 @@ HTMLWidgets.widget({
     
     widedata.forEach(function(d) {
       var y0 = 0;
-      d.ages = z.domain().map(function(name) { 
+      
+      d.ages = colorkeys.map(function(name) { 
         return {name: name, y0: y0, y1: y0 += +d[name]}; });
       console.log(d.ages);
       d.total = d.ages[d.ages.length - 1].y1;
     });
     
     widedata.sort(function(a, b) { return b.total - a.total; });
-    x.domain(widedata.map(function(d) { return d['key']; }));
+    x.domain(data.map(function(d) { return d['rowname']; }));
     y.domain([0, d3.max(widedata, function(d) { return d.total; })]);
     
     colrrng = z;
