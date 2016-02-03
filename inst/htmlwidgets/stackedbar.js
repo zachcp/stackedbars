@@ -153,6 +153,8 @@ HTMLWidgets.widget({
         .attr("height", function(d) { return y(d.y0) - y(d.y1); })
         .style("fill", function(d) { return colors(d.name); });
   
+  if (params.legend) {
+    
     var legend = svg.selectAll(".legend")
         .data(colorkeys.slice().reverse())
       .enter().append("g")
@@ -171,8 +173,8 @@ HTMLWidgets.widget({
         .attr("dy", ".35em")
         .style("text-anchor", "end")
         .text(function(d) { return d; });
-  
-
+  }
+    
     // build the final svg
 
     
