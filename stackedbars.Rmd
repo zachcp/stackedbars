@@ -1,0 +1,70 @@
+---
+title: "Introduction to the stackedbar htmlwidgtet R Package"
+output:
+  html_document:
+    theme: spacelab
+    highlight: tango
+---
+
+[stackedbars](http://github.com/zachcp/stackedbars) is an
+[htmlwidget](https://github.com/ramnathv/htmlwidgets)
+JavaScript/D3 chart library based heavily on the
+[streamgraph](http://github.com/hrbrmstr/streamgraph) package.
+
+## Installation
+
+`devtools::install_github("zachcp/stackedbars")`
+
+## Usage
+
+```{r setup, echo = FALSE, message = FALSE, warning=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(dplyr.print_min = 4L, dplyr.print_max = 4L)
+library(dplyr)
+library(tidyr)
+```
+
+The `stackedbars` pacakge is an `htmlwidget`^[http://www.htmlwidgets.org/] that is based on the `D3.js`^[http://d3js.org/] JavaScript library. Examples are based of Mike Bostocks
+stacked barchart ^[http://bl.ocks.org/mbostock/3886208] and normalized stacked barchart ^[http://bl.ocks.org/mbostock/3886394]. This library owes its existence, organizational
+philosophy and most other details to the `streamgraph` ^[http://github.com/hrbrmstr/streamgraph]
+package
+
+## Making a stacked barchart
+
+```{r stackedbars, message=FALSE, fig.width=9, fig.cap="'Kr-' names (1880-2013)"}
+library(dplyr)
+library(tidyr)
+library(stackedbar)
+
+read.csv(system.file("extdata", "statesdata.csv", package = "stackedbar"),
+         stringsAsFactors = FALSE) %>%
+  tidyr::gather(ages,n,-State) -> dat
+
+stackedbar(dat, "ages", "n", "State",
+        interactive=TRUE, 
+        ytitle="NiCE",
+        legend=TRUE) %>%
+        sg_fill_brewer("PuOr")
+```
+
+Currently there are only two functions, `stackedbar` and `stackedbarnormal` which do what they advertise...
+
+```{r stackednormal, message=FALSE, fig.width=9.5, fig.cap="'I-' names (1880-2013)"}
+stackedbarnormal(dat, "ages", "n", "State", right=150,
+        interactive=TRUE, 
+        ytitle="NiCE",
+        legend=TRUE) %>%
+        sg_fill_brewer("PuOr")
+```
+
+
+### Data Expectations
+
+The data to use for a `stackedbar` should be in "long format"^[http://blog.rstudio.org/2014/07/22/introducing-tidyr/]. For example:
+
+```{r}
+head(dat)
+```
+
+<hr noshade size=1>
+<div style="font-size:10px">streamgraph R package by Bob Rudis <br/>htmlwidgets R package by Ramnath Vaidyanathan, Kenton Russell <br/>D3 JavaScript library by Mike Bostock.<br/><br/></div>
