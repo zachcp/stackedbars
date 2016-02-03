@@ -61,4 +61,4 @@ head(dat)
 ```
 
 <hr noshade size=1>
-<div style="font-size:10px">streamgraph R package by Bob Rudis <br/>htmlwidgets R package by Ramnath Vaidyanathan, Kenton Russell <br/>D3 JavaScript library by Mike Bostock.<br/><br/></div>
+<div style="font-size:10px">stackedbar R package by zach charlop-powers <br/>streamgraph R package by Bob Rudis <br/>htmlwidgets R package by Ramnath Vaidyanathan, Kenton Russell <br/>D3 JavaScript library by Mike Bostock.<br/><br/></div>
