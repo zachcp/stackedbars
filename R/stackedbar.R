@@ -88,9 +88,6 @@ stackedbar <- function(data,
   data <- data[,c(key, value, date)]
   colnames(data) <- c("colname","value", "rowname")
   
-  # xtu <- "month"
-  # xtf <- "%b"
-  # xti <- 1
   xtu <- NULL
   xtf <- ",.0f"
   xti <- 10

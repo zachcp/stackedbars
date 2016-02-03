@@ -21,7 +21,6 @@ Imports:
     htmlwidgets,
     htmltools,
     magrittr,
-    xts,
     tidyr,
     dplyr
 VignetteBuilder: knitr
