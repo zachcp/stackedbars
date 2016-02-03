@@ -26,6 +26,7 @@
 #' @param left left margin (default should be fine, this allows for fine-tuning plot space)
 #' @param ytitle yaxis title (default "")
 #' @param legend legend  (default TRUE)
+#' @param xsort whether to sort the xaxis  (default TRUE)
 #' @import htmlwidgets htmltools
 #' @importFrom tidyr expand
 #' @return stackedbar object
@@ -56,7 +57,8 @@ stackedbar <- function(data,
                         bottom=30,
                         left=50,
                         ytitle="",
-                       legend=TRUE) {
+                        legend=TRUE,
+                        xsort=TRUE) {
 
   if (!(offset %in% c("silhouette", "wiggle", "expand", "zero"))) {
     warning("'offset' does not have a valid value, defaulting to 'silhouette'")
@@ -120,7 +122,8 @@ stackedbar <- function(data,
     fill="brewer",
     label_col="black",
     x_scale=scale,
-    ytitle=ytitle
+    ytitle=ytitle,
+    xsort=xsort
   )
 
   htmlwidgets::createWidget(

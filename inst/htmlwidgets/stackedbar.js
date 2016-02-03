@@ -113,8 +113,11 @@ var ncols = d3.keys(dbgwd[0]).length;
       d.total = d.ages[d.ages.length - 1].y1;
     });
     
-    widedata.sort(function(a, b) { return b.total - a.total; });
-    x.domain(data.map(function(d) { return d['rowname']; }));
+    if (params.xsort) {
+        widedata.sort(function(a, b) { return b.total - a.total; });
+    }
+    
+    x.domain(widedata.map(function(d) { return d['rowname']; }));
     y.domain([0, d3.max(widedata, function(d) { return d.total; })]);
     
     colrrng = colorkeys;
