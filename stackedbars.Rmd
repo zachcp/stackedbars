@@ -40,20 +40,14 @@ read.csv(system.file("extdata", "statesdata.csv", package = "stackedbar"),
          stringsAsFactors = FALSE) %>%
   tidyr::gather(ages,n,-State) -> dat
 
-stackedbar(dat, "ages", "n", "State",
-        interactive=TRUE, 
-        ytitle="NiCE",
-        legend=TRUE) %>%
+stackedbar(dat, "ages", "n", "State", legend=TRUE) %>%
         sg_fill_brewer("PuOr")
 ```
 
 Currently there are only two functions, `stackedbar` and `stackedbarnormal` which do what they advertise...
 
 ```{r stackednormal, message=FALSE, fig.width=9.5, fig.cap="'I-' names (1880-2013)"}
-stackedbarnormal(dat, "ages", "n", "State", right=150,
-        interactive=TRUE, 
-        ytitle="NiCE",
-        legend=TRUE) %>%
+stackedbarnormal(dat, "ages", "n", "State", right=150,) %>%
         sg_fill_brewer("PuOr")
 ```
 
