@@ -21,11 +21,10 @@ HTMLWidgets.widget({
     while (el.firstChild)
     el.removeChild(el.firstChild);
 
-    var format = d3.time.format("%Y-%m-%d");
-
+    //var format = d3.time.format("%Y-%m-%d");
     dbg = params ;
 
-    // reformat the data
+    // reformat the data to wide
     var data = HTMLWidgets.dataframeToD3(params.data) ;
 
     data.forEach(function(d) {
@@ -33,8 +32,6 @@ HTMLWidgets.widget({
       d.value = +d.value;
     });
 
-    dbg2 = data;
-    
     // convert to wide format
     // HT http://jonathansoma.com/tutorials/d3/wide-vs-long-data/
     var widedata = d3.nest()
@@ -54,6 +51,7 @@ HTMLWidgets.widget({
         return d.values;
     });
 
+    dbg2 = data;
     dbgwd = widedata;
     
     // assign colors
@@ -62,8 +60,7 @@ HTMLWidgets.widget({
     var tooltip ;
     var opacity = 0.33 ;
 
-    // var ncols = d3.map(data, function(d) { return(d.key) }).keys().length;
-    var ncols = d3.keys(dbgwd[0]).length;
+var ncols = d3.keys(dbgwd[0]).length;
     if (ncols <= 2) { ncols = 3 ; }
 
     if (params.fill == "brewer") {
@@ -86,9 +83,9 @@ HTMLWidgets.widget({
 
     // color 
     var colorkeys = d3.keys(dbgwd[0]).filter(function(key) { return key !== "rowname"; })
-    var colors =  d3.scale.ordinal()
-                    .range(colorrange)
-                    .domain(colorkeys);
+    var colors    =  d3.scale.ordinal()
+                      .range(colorrange)
+                      .domain(colorkeys);
     
     var xAxis = d3.svg.axis()
         .scale(x)
