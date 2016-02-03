@@ -28,6 +28,7 @@
 #' @param right right margin (default should be fine, this allows for fine-tuning plot space)
 #' @param bottom bottom margin (default should be fine, this allows for fine-tuning plot space)
 #' @param left left margin (default should be fine, this allows for fine-tuning plot space)
+#' @param ytitle yaxis title (default "")
 #' @import htmlwidgets htmltools
 #' @importFrom tidyr expand
 #' @return stackedbar object
@@ -57,7 +58,8 @@ stackedbar <- function(data,
                         top=20,
                         right=40,
                         bottom=30,
-                        left=50) {
+                        left=50,
+                        ytitle="") {
 
   if (!(offset %in% c("silhouette", "wiggle", "expand", "zero"))) {
     warning("'offset' does not have a valid value, defaulting to 'silhouette'")
@@ -131,7 +133,8 @@ stackedbar <- function(data,
     legend_label="",
     fill="brewer",
     label_col="black",
-    x_scale=scale
+    x_scale=scale,
+    ytitle=ytitle
   )
 
   htmlwidgets::createWidget(

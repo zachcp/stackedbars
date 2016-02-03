@@ -136,7 +136,7 @@ HTMLWidgets.widget({
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Population");
+        .text(params.ytitle);
 
     
     var state = svg.selectAll(".state")
