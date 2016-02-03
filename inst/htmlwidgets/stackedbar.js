@@ -86,7 +86,7 @@ HTMLWidgets.widget({
 
     // color 
     var colorkeys = d3.keys(dbgwd[0]).filter(function(key) { return key !== "rowname"; })
-    var color =  d3.scale.ordinal()
+    var colors =  d3.scale.ordinal()
                     .range(colorrange)
                     .domain(colorkeys);
     
@@ -120,7 +120,7 @@ HTMLWidgets.widget({
     x.domain(data.map(function(d) { return d['rowname']; }));
     y.domain([0, d3.max(widedata, function(d) { return d.total; })]);
     
-    colrrng = z;
+    colrrng = colorkeys;
     
     // all the drawing is here
     svg.append("g")
@@ -151,10 +151,10 @@ HTMLWidgets.widget({
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d.y1); })
         .attr("height", function(d) { return y(d.y0) - y(d.y1); })
-        .style("fill", function(d) { return z(d.name); });
+        .style("fill", function(d) { return colors(d.name); });
   
     var legend = svg.selectAll(".legend")
-        .data(colorkeys.domain().slice().reverse())
+        .data(colorkeys.slice().reverse())
       .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -163,7 +163,7 @@ HTMLWidgets.widget({
         .attr("x", width - 18)
         .attr("width", 18)
         .attr("height", 18)
-        .style("fill", z);
+        .style("fill", colors);
   
     legend.append("text")
         .attr("x", width - 24)
